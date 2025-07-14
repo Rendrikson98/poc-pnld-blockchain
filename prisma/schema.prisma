@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventCallType {
+  Receive
+  Update
+  Forward
+}
+
+model tb_phase_call {
+  event_id     Int            @id @default(autoincrement())
+  call_id      Int?
+  event_type   EventCallType?
+  title        String?
+  year         Int?
+  document_url String?
+  old_values   Json?
+  new_values   Json?
+  actor        String
+  created_at   DateTime?      @default(now())
+  updated_at   DateTime?      @default(now()) @updatedAt
+}
+
+model tb_phase_contract {
+  event_id     Int       @id @default(autoincrement())
+  school_id    Int?
+  contract_id  Int?
+  cnpj         String?
+  publisher_id Int?
+  book_json    String?
+  hash         String?
+  event_type   String?
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @default(now()) @updatedAt
+}
+
+model tb_phase_logistics {
+  event_id        Int       @id @default(autoincrement())
+  record_id       Int?
+  publisher_id    Int?
+  delivery_status String?
+  hash            String?
+  event_type      String?
+  created_at      DateTime? @default(now())
+  updated_at      DateTime? @default(now()) @updatedAt
+}
+
+model tb_phase_review {
+  event_id           Int       @id @default(autoincrement())
+  book_id            Int?
+  call_id            Int?
+  book_status        String?
+  reviewers_json     Json?
+  report_document    String?
+  criteria_json      Json?
+  review_description String?
+  hash               String?
+  event_type         String?
+  created_at         DateTime? @default(now())
+  updated_at         DateTime? @default(now()) @updatedAt
+}
+
+model tb_phase_selection {
+  event_id           Int       @id @default(autoincrement())
+  book_id            Int?
+  school             Int?
+  review_description String?
+  book_status        String?
+  manager_id         Int?
+  document           String?
+  book_json          Json?
+  hash               String?
+  event_type         String?
+  created_at         DateTime? @default(now())
+  updated_date       DateTime? @default(now()) @updatedAt
+  updated_at         DateTime? @default(now()) @updatedAt
+}
+
+model tb_phase_submission {
+  event_id       Int       @id @default(autoincrement())
+  call_id        Int?
+  publisher_id   Int?
+  publisher_name String?
+  book_id        Int?
+  book_status    String?
+  document_url   String?
+  documento_url  String?
+  event_type     String?
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @default(now()) @updatedAt
+}
+
+model tb_phase_usage {
+  event_id         Int       @id @default(autoincrement())
+  book_id          Int?
+  school_id        Int?
+  evaluations_json Json?
+  indicators_json  Json?
+  hash             String?
+  event_type       String?
+  created_at       DateTime? @default(now())
+}
