@@ -69,6 +69,7 @@ model tb_phase_review {
   review_description String?
   hash               String?
   event_type         String?
+  actor              String? // Campo adicionado
   created_at         DateTime? @default(now())
   updated_at         DateTime? @default(now()) @updatedAt
 }
@@ -97,7 +98,8 @@ model tb_phase_submission {
   book_id        Int?
   book_status    String?
   document_url   String?
-  documento_url  String?
+  reviewers      String[]
+  actor          String?
   event_type     String?
   created_at     DateTime? @default(now())
   updated_at     DateTime? @default(now()) @updatedAt

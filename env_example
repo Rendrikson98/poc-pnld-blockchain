@@ -1,0 +1,5 @@
+PORT=3000
+DATABASE_URL=postgresql://postgres:10203040@localhost:5432/db_doc_emerson
+
+# This was inserted by `prisma init`:
+[object Promise]
