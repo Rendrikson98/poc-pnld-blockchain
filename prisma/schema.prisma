@@ -30,6 +30,7 @@ model tb_phase_call {
   old_values   Json?
   new_values   Json?
   actor        String
+  contract_address String?
   created_at   DateTime?      @default(now())
   updated_at   DateTime?      @default(now()) @updatedAt
 }
@@ -43,6 +44,7 @@ model tb_phase_contract {
   book_json    String?
   hash         String?
   event_type   String?
+  contract_address String?
   created_at   DateTime? @default(now())
   updated_at   DateTime? @default(now()) @updatedAt
 }
@@ -54,6 +56,7 @@ model tb_phase_logistics {
   delivery_status String?
   hash            String?
   event_type      String?
+  contract_address String?
   created_at      DateTime? @default(now())
   updated_at      DateTime? @default(now()) @updatedAt
 }
@@ -70,6 +73,7 @@ model tb_phase_review {
   hash               String?
   event_type         String?
   actor              String? // Campo adicionado
+  contract_address String?
   created_at         DateTime? @default(now())
   updated_at         DateTime? @default(now()) @updatedAt
 }
@@ -85,6 +89,7 @@ model tb_phase_selection {
   book_json          Json?
   hash               String?
   event_type         String?
+  contract_address String?
   created_at         DateTime? @default(now())
   updated_date       DateTime? @default(now()) @updatedAt
   updated_at         DateTime? @default(now()) @updatedAt
@@ -100,6 +105,7 @@ model tb_phase_submission {
   document_url   String?
   reviewers      String[]
   actor          String?
+  contract_address String?
   event_type     String?
   created_at     DateTime? @default(now())
   updated_at     DateTime? @default(now()) @updatedAt
