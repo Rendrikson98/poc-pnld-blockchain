@@ -1,13 +1,26 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
+const { deployMasterContract, fase1_receberMetadados } = require('./smartContractController');
 
 // Rota para "receber metadados do edital"
 const receberMetadadosEdital = async (req, res) => {
   try {
-    const body = req.body;
-    console.log(body)
-    const { id_edital, title, year, url_document, ator } = req.body;
+    const { id_edital, title, year, url_document, ator, contas_editoras } = req.body;
 
+    if (!contas_editoras || !Array.isArray(contas_editoras)) {
+      return res.status(400).json({ message: 'O campo "contas_editoras" é obrigatório e deve ser um array.' });
+    }
+
+    // 1. Deploy do contrato mestre, que por sua vez já cria o contrato da fase 1
+    const contractAddress = await deployMasterContract(contas_editoras, id_edital);
+    console.log(`Contrato Mestre implantado em: ${contractAddress}`);
+
+    // 2. Enviar os metadados para o contrato mestre
+    const timestamp = Math.floor(Date.now() / 1000);
+    await fase1_receberMetadados(id_edital, title, year, url_document, timestamp);
+    console.log('Metadados enviados para o contrato da Fase 1.');
+
+    // 3. Armazenar o evento no banco de dados
     const novoEvento = await prisma.tb_phase_call.create({
       data: {
         call_id: id_edital,
@@ -16,14 +29,14 @@ const receberMetadadosEdital = async (req, res) => {
         document_url: url_document,
         event_type: 'Receive',
         actor: ator,
+        contract_address: contractAddress, // Salva o endereço do contrato mestre
       },
     });
 
     res.status(201).json(novoEvento);
   } catch (error) {
     console.log(error);
-
-    res.status(500).json({ message: 'Não foi possível armazenar os metadados do edital.', error });
+    res.status(500).json({ message: 'Não foi possível armazenar os metadados do edital.', error: error.message });
   }
 };
 
