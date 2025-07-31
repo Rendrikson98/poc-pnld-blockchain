@@ -1,4 +1,4 @@
-const web3 = require('../../web3.config');
+const web3 = require('../web3.config');
 const { abi: abiMasterContract, bytecode: bytecodeMasterContract } = require('../constants/contratoMestre').masterContract;
 const { publicKey, privateKey } = require('../constants/accountsInfo').account;
 const { abi: abiPublicationContract, bytecode: bytecodePublicationContract } = require('../constants/publicacao').publicationContract;
@@ -40,8 +40,8 @@ const definirCargo = async (_conta, _cargo) => {
     return await sendTransaction.call({ masterContract, contractAddress }, 'definirCargo', [_conta, _cargo]);
 };
 
-const criarContratoFase1 = async () => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'criarContratoFase1', []);
+const criarContratoFase1 = async (masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, contractAddress }, 'criarContratoFase1', [masterContractAddress]);
 };
 
 const criarContratoFase2 = async () => {
@@ -74,23 +74,18 @@ const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
             throw new Error('Parameters _contasEditoras and _numeroEdital are required.');
         }
 
-        console.log('aqui')
-
         const masterContractToDeploy = new web3.eth.Contract(abiMasterContract);
- console.log('aqui 2')
+
         const deployTx = masterContractToDeploy.deploy({
             data: bytecodeMasterContract,
             arguments: [_contasEditoras, _numeroEdital],
         });
- console.log('aqui 3')
+
         const gas = await deployTx.estimateGas({ from: publicKey });
-        console.log('aqui 4')
         const gasPrice = await web3.eth.getGasPrice();
-        console.log('aqui 5')
         const data = deployTx.encodeABI();
-        console.log('aqui 6')
         const nonce = await web3.eth.getTransactionCount(publicKey);
-        console.log('aqui 7')
+
         const signedTx = await web3.eth.accounts.signTransaction(
             {
                 data,
@@ -100,21 +95,45 @@ const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
             },
             privateKey
         );
-        console.log('aqui 8')
-        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-        const newContractAddress = receipt.contractAddress;
 
-        console.log(`Master contract deployed at: ${newContractAddress}`);
+        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        const masterContractAddress = receipt.contractAddress;
+        console.log(`Master contract deployed at: ${masterContractAddress}`);
 
         // Create a new instance for the just-deployed contract
-        const newMasterContract = new web3.eth.Contract(abiMasterContract, newContractAddress);
+        const publicationContractToDeploy = new web3.eth.Contract(abiPublicationContract);
+        const deployPublicationTx = publicationContractToDeploy.deploy({
+            data: bytecodePublicationContract,
+            arguments: [masterContractAddress],
+        });
 
-        // Call a transaction on the new contract
-        await sendTransaction.call({ masterContract: newMasterContract, contractAddress: newContractAddress }, 'criarContratoFase1', []);
+         
+         const gasPublication = await deployPublicationTx.estimateGas({ from: publicKey });
+        const gasPricePublication = await web3.eth.getGasPrice();
+        const dataPublication = deployPublicationTx.encodeABI();
+        const noncePublication = await web3.eth.getTransactionCount(publicKey);
         
-        console.log('Phase 1 contract creation called.');
 
-        return newContractAddress;
+        const signedPublicationTx = await web3.eth.accounts.signTransaction(
+            {
+                data: dataPublication,
+                gas: gasPublication,
+                gasPrice: gasPricePublication,  
+                nonce: noncePublication,
+                
+            },
+            privateKey
+        );
+
+         const publicationReceipt = await web3.eth.sendSignedTransaction(signedPublicationTx.rawTransaction);
+        const publicationAddress = publicationReceipt.contractAddress;
+
+       
+
+        return {
+            masterContractAddress,
+            publicationAddress
+        };
 
     } catch (error) {
         console.error('Contract deployment failed:', error);

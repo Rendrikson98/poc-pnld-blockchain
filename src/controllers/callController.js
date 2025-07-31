@@ -12,8 +12,9 @@ const receberMetadadosEdital = async (req, res) => {
     }
 
     // 1. Deploy do contrato mestre, que por sua vez já cria o contrato da fase 1
-    const contractAddress = await deployMasterContract(contas_editoras, id_edital);
-    console.log(`Contrato Mestre implantado em: ${contractAddress}`);
+    const { masterContractAddress, publicationAddress } = await deployMasterContract(contas_editoras, id_edital);
+    console.log(`Contrato Mestre implantado em: ${masterContractAddress}`);
+    console.log(`Contrato da Fase 1 implantado em: ${publicationAddress}`);
 
     // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
@@ -29,7 +30,8 @@ const receberMetadadosEdital = async (req, res) => {
         document_url: url_document,
         event_type: 'Receive',
         actor: ator,
-        contract_address: contractAddress, // Salva o endereço do contrato mestre
+        contract_address: publicationAddress, // Salva o endereço do contrato da fase 1
+        master_contract_adress: masterContractAddress, // Salva o endereço do contrato mestre
       },
     });
 
