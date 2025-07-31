@@ -4,12 +4,12 @@ const { publicKey, privateKey } = require('../constants/accountsInfo').account;
 const { abi: abiPublicationContract, bytecode: bytecodePublicationContract } = require('../constants/publicacao').publicationContract;
 const { abi: abiSubmissionContract, bytecode: bytecodeSubmissionContract } = require('../constants/submissao').submissionContract;
 
-const contractAddress = process.env.MASTER_CONTRACT_ADDRESS;
-const masterContract = new web3.eth.Contract(abiMasterContract, contractAddress);
+const accountAddress = publicKey;
+const masterContract = new web3.eth.Contract(abiMasterContract, accountAddress);
 
 const sendTransaction = async function(methodName, params) {
     const contract = this && this.masterContract ? this.masterContract : masterContract;
-    const address = this && this.contractAddress ? this.contractAddress : contractAddress;
+    const address = this && this.accountAddress ? this.accountAddress : accountAddress;
     try {
         const method = contract.methods[methodName];
         const gas = await method(...params).estimateGas({ from: publicKey });
@@ -37,35 +37,35 @@ const sendTransaction = async function(methodName, params) {
 // Helper para enviar transação para qualquer contrato
 
 const definirCargo = async (_conta, _cargo) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'definirCargo', [_conta, _cargo]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'definirCargo', [_conta, _cargo]);
 };
 
 const criarContratoFase1 = async (masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'criarContratoFase1', [masterContractAddress]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'criarContratoFase1', [masterContractAddress]);
 };
 
 const criarContratoFase2 = async () => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'criarContratoFase2', []);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'criarContratoFase2', []);
 };
 
 const fase1_receberMetadados = async (id, title, year, url, ts) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'fase1_receberMetadados', [id, title, year, url, ts]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberMetadados', [id, title, year, url, ts]);
 };
 
 const fase1_receberAlteracoes = async (id, data, newUrl, timestamp) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'fase1_receberAlteracoes', [id, data, newUrl, timestamp]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberAlteracoes', [id, data, newUrl, timestamp]);
 };
 
 const fase1_enviarMetadadosParaFase2 = async () => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'fase1_enviarMetadadosParaFase2', []);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_enviarMetadadosParaFase2', []);
 };
 
 const fase2_receberInscricaoObras = async (id_editora, cnpj, id_obra, ts) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'fase2_receberInscricaoObras', [id_editora, cnpj, id_obra, ts]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id_editora, cnpj, id_obra, ts]);
 };
 
 const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url) => {
-    return await sendTransaction.call({ masterContract, contractAddress }, 'fase2_emitirRelatorioObrasValidadas', [id_obra, titulo, url]);
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_emitirRelatorioObrasValidadas', [id_obra, titulo, url]);
 };
 
 const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
@@ -147,17 +147,17 @@ const getPublicationContract = (address) => new web3.eth.Contract(abiPublication
 
 const pub_receberMetadadosEdital = async (contractAddress, _id_edital, _title, _year, _url_document, _timestamp) => {
     const contract = getPublicationContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'receberMetadadosEdital', [_id_edital, _title, _year, _url_document, _timestamp]);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'receberMetadadosEdital', [_id_edital, _title, _year, _url_document, _timestamp]);
 };
 
 const pub_receberAlteracoesEdital = async (contractAddress, _id_edital, _data_alteracao, _new_url_document, _timestamp) => {
     const contract = getPublicationContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'receberAlteracoesEdital', [_id_edital, _data_alteracao, _new_url_document, _timestamp]);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'receberAlteracoesEdital', [_id_edital, _data_alteracao, _new_url_document, _timestamp]);
 };
 
 const pub_enviarMetadadosParaProximaFase = async (contractAddress) => {
     const contract = getPublicationContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'enviarMetadadosParaProximaFase', []);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'enviarMetadadosParaProximaFase', []);
 };
 
 const pub_edital = async (contractAddress) => {
@@ -175,17 +175,17 @@ const getSubmissionContract = (address) => new web3.eth.Contract(abiSubmissionCo
 
 const sub_receberMetadadosDoEdital = async (contractAddress, _id_edital, _title) => {
     const contract = getSubmissionContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'receberMetadadosDoEdital', [_id_edital, _title]);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'receberMetadadosDoEdital', [_id_edital, _title]);
 };
 
 const sub_receberInscricaoObras = async (contractAddress, _id_editora, _cnpj, _id_obra, _timestamp) => {
     const contract = getSubmissionContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'receberInscricaoObras', [_id_editora, _cnpj, _id_obra, _timestamp]);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'receberInscricaoObras', [_id_editora, _cnpj, _id_obra, _timestamp]);
 };
 
 const sub_emitirRelatorioObrasValidadas = async (contractAddress, _id_obra, _titulo, _url_documento) => {
     const contract = getSubmissionContract(contractAddress);
-    return await sendTransaction.call({ masterContract: contract, contractAddress }, 'emitirRelatorioObrasValidadas', [_id_obra, _titulo, _url_documento]);
+    return await sendTransaction.call({ masterContract: contract, accountAddress }, 'emitirRelatorioObrasValidadas', [_id_obra, _titulo, _url_documento]);
 };
 
 const sub_enviarObrasValidadasParaProximaFase = async (contractAddress, _id_obra) => {
