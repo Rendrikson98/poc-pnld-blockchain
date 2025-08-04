@@ -1,6 +1,6 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
-const { deployMasterContract, fase1_receberMetadados } = require('./smartContractController');
+const { deployMasterContract, fase1_receberMetadados, fase1_receberAlteracoes, fase2_receberInscricaoObras } = require('./smartContractController');
 
 // Rota para "receber metadados do edital"
 const receberMetadadosEdital = async (req, res) => {
@@ -48,6 +48,14 @@ const alterarEdital = async (req, res) => {
     const { event_id } = req.params; // Usando o event_id que é a chave primária
     const { old_values, new_values, ator } = req.body;
 
+    if(!old_values || !new_values || !ator) {
+      return res.status(400).json({ message: 'Os campos "old_values", "new_values" e "ator" são obrigatórios.' });
+    }
+
+     // 2. Enviar os metadados para o contrato mestre
+    const timestamp = Math.floor(Date.now() / 1000);
+    await fase1_receberAlteracoes(event_id,  new_values.year, new_values.url_document, timestamp);
+
     const eventoAtualizado = await prisma.tb_phase_call.update({
       where: {
         event_id: parseInt(event_id), // Cláusula 'where' para encontrar o registro pelo ID
@@ -79,7 +87,25 @@ const enviarParaProximaFase = async (req, res) => {
     try {
         const { event_id } = req.params;
         const { ator } = req.body;
-    
+
+        // 1. Consultar o evento no banco de dados para obter os dados necessários
+        const evento = await prisma.tb_phase_call.findUnique({
+            where: {
+                event_id: parseInt(event_id),
+            },
+        });
+
+        // 2. Verificar se o evento foi encontrado
+        if (!evento) {
+            return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
+        }
+
+        // 3. Extrair título e ano do evento
+        console.log(JSON.stringify(evento))
+        
+
+
+        // 4. Atualizar o status do evento para "Forward"
         const eventoProximaFase = await prisma.tb_phase_call.update({
           where:{
             event_id: parseInt(event_id)
