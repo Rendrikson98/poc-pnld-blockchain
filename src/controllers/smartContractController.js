@@ -60,8 +60,8 @@ const fase1_enviarMetadadosParaFase2 = async () => {
     return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_enviarMetadadosParaFase2', []);
 };
 
-const fase2_receberInscricaoObras = async (id_editora, cnpj, id_obra, ts) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id_editora, cnpj, id_obra, ts]);
+const fase2_receberInscricaoObras = async (id, title, year) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id, title, year]);
 };
 
 const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url) => {

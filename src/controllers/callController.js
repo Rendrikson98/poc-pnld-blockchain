@@ -1,6 +1,6 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
-const { deployMasterContract, fase1_receberMetadados, fase1_receberAlteracoes, fase2_receberInscricaoObras } = require('./smartContractController');
+const { deployMasterContract, fase1_receberMetadados, fase1_receberAlteracoes, fase1_enviarMetadadosParaFase2 } = require('./smartContractController');
 
 // Rota para "receber metadados do edital"
 const receberMetadadosEdital = async (req, res) => {
@@ -86,24 +86,27 @@ const alterarEdital = async (req, res) => {
 const enviarParaProximaFase = async (req, res) => {
     try {
         const { event_id } = req.params;
-        const { ator } = req.body;
+        const { ator, razao_social, book_id } = req.body;
 
         // 1. Consultar o evento no banco de dados para obter os dados necessários
-        const evento = await prisma.tb_phase_call.findUnique({
+        const event = await prisma.tb_phase_call.findUnique({
             where: {
                 event_id: parseInt(event_id),
             },
         });
 
         // 2. Verificar se o evento foi encontrado
-        if (!evento) {
+        if (!event) {
             return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
         }
 
         // 3. Extrair título e ano do evento
-        console.log(JSON.stringify(evento))
-        
+        console.log(JSON.stringify(event))
+        const { title, year, master_contract_adress } = event;
 
+        const result = await fase1_enviarMetadadosParaFase2(event_id,  title, year);
+
+        console.log(result)
 
         // 4. Atualizar o status do evento para "Forward"
         const eventoProximaFase = await prisma.tb_phase_call.update({
@@ -115,6 +118,23 @@ const enviarParaProximaFase = async (req, res) => {
             actor: ator,         
           },
         });
+
+        const eventoFase2 = await prisma.tb_phase_submission.create({
+          data: {
+            publisher_id: Number(event_id),
+            publisher_name: razao_social,
+            book_id,
+            book_status: 'Submetido', // Status inicial
+            event_type: 'Registro de Obra',
+            actor: ator,
+            contract_address: result.to,
+            master_contract_adress: master_contract_adress, // Endereço do contrato mestre
+          },
+        })
+
+        if(!eventoFase2) {
+          return res.status(500).json({ message: 'Não foi possível registrar a obra na fase 2.' });
+        }
     
         res.status(201).json(eventoProximaFase);
       } catch (error) {
