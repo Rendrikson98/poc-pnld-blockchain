@@ -52,9 +52,17 @@ const alterarEdital = async (req, res) => {
       return res.status(400).json({ message: 'Os campos "old_values", "new_values" e "ator" são obrigatórios.' });
     }
 
+    const event = await prisma.tb_phase_call.findUnique({
+      where: {
+          event_id: parseInt(event_id),
+      },
+    });
+
+    const { master_contract_adress } = event
+
      // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
-    await fase1_receberAlteracoes(event_id,  new_values.year, new_values.url_document, timestamp);
+    await fase1_receberAlteracoes(event_id,  new_values.year, new_values.url_document, timestamp, master_contract_adress);
 
     const eventoAtualizado = await prisma.tb_phase_call.update({
       where: {
@@ -104,7 +112,7 @@ const enviarParaProximaFase = async (req, res) => {
         console.log(JSON.stringify(event))
         const { title, year, master_contract_adress } = event;
 
-        const result = await fase1_enviarMetadadosParaFase2(event_id,  title, year);
+        const result = await fase1_enviarMetadadosParaFase2(event_id,  title, year, master_contract_adress);
 
         console.log(result)
 

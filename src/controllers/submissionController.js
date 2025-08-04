@@ -1,15 +1,36 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
+const { fase2_receberInscricaoObras, fase2_emitirRelatorioObrasValidadas } = require('./smartContractController');
+
 
 // Rota para registrar a submissão de uma obra por uma editora
 const registrarObra = async (req, res) => {
   try {
+    const { event_id } = req.params;
     const { id_editora, razao_social, id_obra, ator } = req.body;
 
-    const novaSubmissao = await prisma.tb_phase_submission.create({
+    if (!id_editora || !razao_social || !id_obra || !ator) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    const event = await prisma.tb_phase_call.findUnique({
+      where: {
+          event_id: parseInt(event_id),
+      },
+    });
+
+    const { master_contract_adress } = event;
+
+    // 2. Enviar os metadados para o contrato mestre
+    const timestamp = Math.floor(Date.now() / 1000);
+    const result = await fase2_receberInscricaoObras(id_editora, razao_social, id_obra, timestamp, master_contract_adress);
+    console.log(result);
+
+    const novaSubmissao = await prisma.tb_phase_submission.update({
+      where: { event_id: parseInt(event_id) },
       data: {
         publisher_id: id_editora,
-        publisher_name: razao_social,
+        publisher_name: razao_social, //cnpj do contrato
         book_id: id_obra,
         book_status: 'Submetido', // Status inicial
         event_type: 'Registro de Obra',
@@ -59,7 +80,23 @@ const receberAvaliadores = async (req, res) => {
 const emitirRelatorio = async (req, res) => {
   try {
     const { event_id } = req.params;
-    const { id_obra, id_editora, url_documento, ator } = req.body;
+    const { id_editora, titulo, url_documento, ator } = req.body;
+    if (!id_editora || !titulo || !url_documento || !ator) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    const event = await prisma.tb_phase_call.findUnique({
+      where: {
+          event_id: parseInt(event_id),
+      },
+    });
+
+    const { master_contract_adress } = event;
+
+    // 2. Enviar os metadados para o contrato mestre
+    const timestamp = Math.floor(Date.now() / 1000);
+    const result = await fase2_emitirRelatorioObrasValidadas(id_editora, titulo, url_documento, timestamp, master_contract_adress);
+    console.log(result);
 
     const relatorioEmitido = await prisma.tb_phase_submission.update({
       where: { event_id: parseInt(event_id) },
@@ -67,7 +104,6 @@ const emitirRelatorio = async (req, res) => {
         book_status: 'Relatório Emitido',
         document_url: url_documento,
         event_type: 'Emissão de Relatório',
-        book_id: id_obra,
         publisher_id: id_editora,
         actor: ator
       },

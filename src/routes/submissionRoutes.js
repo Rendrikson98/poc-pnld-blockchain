@@ -3,7 +3,7 @@ const router = express.Router();
 const submissionController = require('../controllers/submissionController');
 
 // Rota para registrar a submissão de uma obra
-router.post('/registrar-obra', submissionController.registrarObra);
+router.post('/registrar-obra/:event_id', submissionController.registrarObra);
 
 // Rota para receber os avaliadores de uma obra
 router.put('/receber-avaliadores/:event_id', submissionController.receberAvaliadores);

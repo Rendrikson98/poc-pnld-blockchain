@@ -7,8 +7,8 @@ const { abi: abiSubmissionContract, bytecode: bytecodeSubmissionContract } = req
 const accountAddress = publicKey;
 const masterContract = new web3.eth.Contract(abiMasterContract, accountAddress);
 
-const sendTransaction = async function(methodName, params) {
-    const contract = this && this.masterContract ? this.masterContract : masterContract;
+const sendTransaction = async function(methodName, params, masterContractAddress) {
+    const contract = masterContractAddress ? new web3.eth.Contract(abiMasterContract, masterContractAddress) : masterContract;
     const address = this && this.accountAddress ? this.accountAddress : accountAddress;
     try {
         const method = contract.methods[methodName];
@@ -48,24 +48,24 @@ const criarContratoFase2 = async () => {
     return await sendTransaction.call({ masterContract, accountAddress }, 'criarContratoFase2', []);
 };
 
-const fase1_receberMetadados = async (id, title, year, url, ts) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberMetadados', [id, title, year, url, ts]);
+const fase1_receberMetadados = async (id, title, year, url, ts, masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberMetadados', [id, title, year, url, ts, masterContractAddress]);
 };
 
-const fase1_receberAlteracoes = async (id, data, newUrl, timestamp) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberAlteracoes', [id, data, newUrl, timestamp]);
+const fase1_receberAlteracoes = async (id, data, newUrl, timestamp, masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_receberAlteracoes', [id, data, newUrl, timestamp, masterContractAddress]);
 };
 
-const fase1_enviarMetadadosParaFase2 = async () => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_enviarMetadadosParaFase2', []);
+const fase1_enviarMetadadosParaFase2 = async (masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase1_enviarMetadadosParaFase2', [masterContractAddress]);
 };
 
-const fase2_receberInscricaoObras = async (id, title, year) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id, title, year]);
+const fase2_receberInscricaoObras = async (id, cnpj, idObra, timestamp, masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id, cnpj, idObra, timestamp, masterContractAddress]);
 };
 
-const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_emitirRelatorioObrasValidadas', [id_obra, titulo, url]);
+const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url, masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_emitirRelatorioObrasValidadas', [id_obra, titulo, url, masterContractAddress]);
 };
 
 const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
