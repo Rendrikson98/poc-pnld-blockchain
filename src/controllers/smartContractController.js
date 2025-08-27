@@ -17,14 +17,33 @@ const getFaseAddresses = async (masterContractAddress) => {
             .call();
 
         return response
-        
-        
+
+
     } catch (error) {
         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
         console.log(error);
         throw error;
     }
 };
+
+const getObras = async (masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .consultarObra()
+            .call();
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+};
+
 const definirCargo = async (_conta, _cargo) => {
     return await sendTransaction.call({ masterContract, accountAddress }, 'definirCargo', [_conta, _cargo]);
 };
@@ -37,48 +56,48 @@ const criarContratoFase2 = async () => {
 const fase1_receberMetadados = async (id, title, year, url, ts, masterContractAddress) => {
     const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
-    try {        
+    try {
         const response = await contract.methods
             .fase1_receberMetadados(id, title, year, url, ts)
             .send({
-            from: publicKey,
-            gas: 5000000,
-            gasPrice: '20000000000' // 20 Gwei
-        });
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
 
         return response
-        
-        
+
+
     } catch (error) {
         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
         console.log(error);
         throw error;
-    }    
+    }
 };
 
 const fase1_receberAlteracoes = async (id, data, newUrl, timestamp, masterContractAddress) => {
     const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
-    try {        
+    try {
         const response = await contract.methods
             .fase1_receberAlteracoes(id, data, newUrl, timestamp)
             .send({
-            from: publicKey,
-            gas: 5000000,
-            gasPrice: '20000000000' // 20 Gwei
-        });
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
 
         return response
-        
-        
+
+
     } catch (error) {
         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
         console.log(error);
         throw error;
-    }    
+    }
 };
 
-const fase1_consultar_edital = async ( masterContractAddress) => {
+const fase1_consultar_edital = async (masterContractAddress) => {
     const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
     try {
@@ -87,8 +106,8 @@ const fase1_consultar_edital = async ( masterContractAddress) => {
             .call();
 
         return response
-        
-        
+
+
     } catch (error) {
         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
         console.log(error);
@@ -100,22 +119,22 @@ const fase1_enviarMetadadosParaFase2 = async (masterContractAddress) => {
     const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
     try {
-        
+
 
         await contract.methods
             .criarContratoFase2()
             .send({
                 from: publicKey,
-                gas: 6721975, gasPrice: 2000000000 
+                gas: 6721975, gasPrice: 2000000000
             });
 
         const response = await contract.methods
             .fase1_enviarMetadadosParaFase2()
             .send({
-            from: publicKey,
-            gas: 5000000,
-            gasPrice: '20000000000' // 20 Gwei
-        });
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
 
         const contractAddress = await getFaseAddresses(masterContractAddress);
         const contract2Address = contractAddress?.[1];
@@ -124,8 +143,8 @@ const fase1_enviarMetadadosParaFase2 = async (masterContractAddress) => {
             contract2Address,
             ...response
         }
-        
-        
+
+
     } catch (error) {
         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
         console.log(error);
@@ -134,19 +153,69 @@ const fase1_enviarMetadadosParaFase2 = async (masterContractAddress) => {
 };
 
 const fase2_receberInscricaoObras = async (id, cnpj, idObra, timestamp, masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_receberInscricaoObras', [id, cnpj, idObra, timestamp], masterContractAddress);
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .fase2_receberInscricaoObras(id, cnpj, idObra, timestamp)
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
 };
 
 const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url, masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'fase2_emitirRelatorioObrasValidadas', [id_obra, titulo, url], masterContractAddress);
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .fase2_emitirRelatorioObrasValidadas(id_obra, titulo, url)
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
 };
 
-const fase2_consultar_obras_validadas = async ( masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'consultarObrasValidadas', [ ], masterContractAddress);
-};
+const fase2_consultar_obras_validadas = async (masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
-const fase2_consultar_obra = async ( masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'consultarObra', [ ], masterContractAddress);
+    try {
+        const response = await contract.methods
+            .consultarObra()
+            .call();
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+}
+
+const fase2_consultar_obra = async (masterContractAddress) => {
+    return await sendTransaction.call({ masterContract, accountAddress }, 'consultarObra', [], masterContractAddress);
 };
 
 
@@ -168,19 +237,19 @@ const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
             gasPrice: '20000000000' // 20 Gwei
         });
 
-        
+
         const masterContractAddress = masterContract._address
 
-       const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+        const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
 
-       const response = await contract.methods
+        const response = await contract.methods
             .criarContratoFase1()
             .send({
                 from: publicKey,
-                gas: 6721975, gasPrice: 2000000000 
+                gas: 6721975, gasPrice: 2000000000
             });
 
-        
+
         console.log(response)
         console.log(`Master contract deployed at: ${masterContractAddress}`);
 
@@ -204,6 +273,7 @@ const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
 
 module.exports = {
     // Master contract
+    getObras,
     getFaseAddresses,
     deployMasterContract,
     definirCargo,

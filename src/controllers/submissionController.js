@@ -1,6 +1,6 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
-const { fase2_receberInscricaoObras, fase2_emitirRelatorioObrasValidadas } = require('./smartContractController');
+const { fase2_receberInscricaoObras, fase2_emitirRelatorioObrasValidadas, getObras } = require('./smartContractController');
 
 
 // Rota para registrar a submissão de uma obra por uma editora
@@ -13,9 +13,9 @@ const registrarObra = async (req, res) => {
       return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
-    const event = await prisma.tb_phase_call.findUnique({
+    const event = await prisma.tb_phase_submission.findUnique({
       where: {
-          event_id: parseInt(event_id),
+        event_id: parseInt(event_id),
       },
     });
 
@@ -39,7 +39,7 @@ const registrarObra = async (req, res) => {
     });
 
     res.status(201).json(novaSubmissao);
-  } catch (error){
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Não foi possível registrar a submissão da obra.', error });
   }
@@ -85,17 +85,16 @@ const emitirRelatorio = async (req, res) => {
       return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
-    const event = await prisma.tb_phase_call.findUnique({
+    const event = await prisma.tb_phase_submission.findUnique({
       where: {
-          event_id: parseInt(event_id),
+        event_id: parseInt(event_id),
       },
     });
 
     const { master_contract_adress } = event;
-
+    //TODO: Primeiro precisa receber inscrição da obra e depois emitir o relatórios, preciso criar a função de receber
     // 2. Enviar os metadados para o contrato mestre
-    const timestamp = Math.floor(Date.now() / 1000);
-    const result = await fase2_emitirRelatorioObrasValidadas(id_editora, titulo, url_documento, timestamp, master_contract_adress);
+    const result = await fase2_emitirRelatorioObrasValidadas(id_editora, titulo, url_documento, master_contract_adress);
     console.log(result);
 
     const relatorioEmitido = await prisma.tb_phase_submission.update({
@@ -128,7 +127,7 @@ const enviarParaProximaFase = async (req, res) => {
     const proximaFase = await prisma.tb_phase_submission.update({
       where: { event_id: parseInt(event_id) },
       data: {
-        book_status: 'Relatório enviado para próxima fase',	
+        book_status: 'Relatório enviado para próxima fase',
         call_id: id_edital,
         event_type: 'Enviado para Próxima Fase',
         actor: ator
@@ -160,10 +159,43 @@ const visualizarInformacoes = async (req, res) => {
   }
 };
 
+const consultarObrasFases = async (req, res) => {
+  try {
+    const { masterContractAddress } = req.params;
+
+    if (!masterContractAddress) {
+      return res.status(400).json({ message: 'O endereço do contrato mestre é obrigatório.' });
+    }
+
+    const faseAddresses = await getObras(masterContractAddress);
+
+    const convertBigIntToString = (obj) => {
+      const newObj = {};
+      for (const key in obj) {
+        const value = obj[key];
+        if (typeof value === 'bigint') {
+          newObj[key] = Number(value.toString());
+        } else {
+          newObj[key] = value;
+        }
+      }
+      return newObj;
+    };
+
+    const serializableData = convertBigIntToString(faseAddresses);
+
+    res.status(200).json(serializableData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Não foi possível consultar os endereços das fases no contrato.' });
+  }
+};
+
 module.exports = {
   registrarObra,
   emitirRelatorio,
   enviarParaProximaFase,
   visualizarInformacoes,
   receberAvaliadores,
+  consultarObrasFases
 };

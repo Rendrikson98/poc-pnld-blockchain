@@ -1,5 +1,5 @@
 const publicationContract = {
-   "abi": [
+  "abi": [
     {
       "inputs": [
         {
