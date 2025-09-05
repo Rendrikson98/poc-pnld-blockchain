@@ -1,6 +1,6 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
-const { fase2_receberInscricaoObras, fase2_emitirRelatorioObrasValidadas, getObras } = require('./smartContractController');
+const { fase2_receberInscricaoObras, fase2_emitirRelatorioObrasValidadas, getObras, fase2_enviarMetadadosParaFase3 } = require('./smartContractController');
 
 
 // Rota para registrar a submissão de uma obra por uma editora
@@ -122,19 +122,55 @@ const emitirRelatorio = async (req, res) => {
 const enviarParaProximaFase = async (req, res) => {
   try {
     const { event_id } = req.params;
-    const { id_edital, ator } = req.body;
+    const { id_edital, id_book, ator } = req.body;
+
+    // 1. Consultar o evento no banco de dados para obter os dados necessários
+    const event = await prisma.tb_phase_submission.findUnique({
+      where: {
+        event_id: parseInt(event_id),
+      },
+    });
+
+    // 2. Verificar se o evento foi encontrado
+    if (!event) {
+      return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
+    }
+
+    // 3. Extrair título e ano do evento
+    console.log(JSON.stringify(event))
+    const { master_contract_adress } = event;
+
+    const result = await fase2_enviarMetadadosParaFase3(master_contract_adress);
+
 
     const proximaFase = await prisma.tb_phase_submission.update({
       where: { event_id: parseInt(event_id) },
       data: {
         book_status: 'Relatório enviado para próxima fase',
         call_id: id_edital,
-        event_type: 'Enviado para Próxima Fase',
+        event_type: 'Forward',
         actor: ator
       },
     });
 
-    res.status(200).json(proximaFase);
+    const eventoFase3 = await prisma.tb_phase_review.create({
+      data: {
+        event_id: Number(event_id), // Referência ao event_id da submissão
+        call_id: Number(id_edital),
+        book_id: Number(id_book),
+        book_status: 'Em Revisão', // Status inicial
+        reviewers_json: '[]', // Inicialmente vazio
+        review_reports_json: '[]', // Inicialmente vazio
+        contract_address: result.contract3Address,
+        master_contract_adress: master_contract_adress, // Endereço do contrato mestre
+      },
+    })
+
+    if (!eventoFase3) {
+      return res.status(500).json({ message: 'Não foi possível registrar a obra na fase 2.' });
+    }
+
+    res.status(200).json(eventoFase3);
   } catch (error) {
     console.error(error);
     if (error.code === 'P2025') {

@@ -214,10 +214,126 @@ const fase2_consultar_obras_validadas = async (masterContractAddress) => {
     }
 }
 
-const fase2_consultar_obra = async (masterContractAddress) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'consultarObra', [], masterContractAddress);
+const fase2_enviarMetadadosParaFase3 = async (masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+
+
+        await contract.methods
+            .criarContratoFase3()
+            .send({
+                from: publicKey,
+                gas: 6721975, gasPrice: 2000000000
+            });
+
+        const response = await contract.methods
+            .fase2_enviarObrasParaFase3()
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        const contractAddress = await getFaseAddresses(masterContractAddress);
+        const contract2Address = contractAddress?.[1];
+
+        return {
+            contract2Address,
+            ...response
+        }
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
 };
 
+const fase3_receberAvaliadores = async (id_edital, id_obra, ids_equipes, ids_avaliadores, hash, masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .fase3_receberAvaliadores(id_edital, id_obra, ids_equipes, ids_avaliadores, hash)
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+};
+
+const fase3_emitirRelatorioCriterios = async (doc, historico_criterios, st_criterios, hash, masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .fase3_receberAvaliadores(doc, historico_criterios, st_criterios, hash)
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+};
+
+const fase3_enviarObrasAprovadas = async (id_obra, resenha, st_obra, masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .fase3_receberAvaliadores(id_obra, resenha, st_obra)
+            .send({
+                from: publicKey,
+                gas: 5000000,
+                gasPrice: '20000000000' // 20 Gwei
+            });
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+};
+
+const fase3_consultarRelatorioObras = async (masterContractAddress) => {
+    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+    try {
+        const response = await contract.methods
+            .consultarRelatorioObras()
+            .call();
+
+        return response
+
+
+    } catch (error) {
+        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+        console.log(error);
+        throw error;
+    }
+};
 
 
 const deployMasterContract = async (_contasEditoras, _numeroEdital) => {
@@ -278,13 +394,20 @@ module.exports = {
     deployMasterContract,
     definirCargo,
     criarContratoFase2,
+    // Fase 1
     fase1_receberMetadados,
     fase1_receberAlteracoes,
     fase1_enviarMetadadosParaFase2,
+    // fase2
     fase2_receberInscricaoObras,
     fase2_emitirRelatorioObrasValidadas,
     fase1_consultar_edital,
     fase2_consultar_obras_validadas,
-    fase2_consultar_obra,
+    fase2_enviarMetadadosParaFase3,
+    // Fase 3
+    fase3_receberAvaliadores,
+    fase3_emitirRelatorioCriterios,
+    fase3_enviarObrasAprovadas,
+    fase3_consultarRelatorioObras
 
 };
