@@ -109,6 +109,64 @@ const emitirRelatorio = async (req, res) => {
   }
 }
 
+const enviarParaProximaFase = async (req, res) => {
+  try {
+    const { event_id } = req.params;
+    const { call_id, ator } = req.body;
+
+    // 1. Consultar o evento no banco de dados para obter os dados necessários
+    const event = await prisma.tb_phase_review.findUnique({
+      where: {
+        event_id: parseInt(event_id),
+      },
+    });
+
+    // 2. Verificar se o evento foi encontrado
+    if (!event) {
+      return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
+    }
+
+    // 3. Extrair título e ano do evento
+    console.log(JSON.stringify(event))
+    const { master_contract_adress } = event;
+
+    const result = await fase3_enviarObrasAprovadas(master_contract_adress);
+
+    console.log(result)
+
+    // 4. Atualizar o status do evento para "Forward"
+    await prisma.tb_phase_review.update({
+      where: {
+        event_id: parseInt(event_id)
+      },
+      data: {
+        call_id: call_id,
+        event_type: 'Forward',
+        actor: ator,
+      },
+    });
+
+    const eventoFase3 = await prisma.tb_phase_review.create({
+      data: {
+        call_id: call_id,
+        master_contract_adress: master_contract_adress,
+        event_type: 'Início da Fase 3',
+        actor: ator,
+      },
+    });
+
+    res.status(200).json(eventoFase3);
+
+  } catch (error) {
+    console.error(error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: `Não foi possível enviar para a próxima fase.` });
+    }
+    res.status(500).json({ message: 'Não foi possível enviar para a próxima fase.', error });
+  }
+
+}
+
 //TODO: Fazar a função fase3_enviarObrasAprovadas
 
 const consultarRelatorioObras = async (req, res) => {
@@ -162,5 +220,6 @@ module.exports = {
   receberAvaliadores,
   emitirRelatorio,
   consultarRelatorioObras,
-  consultarRelatorioObrasFase3
+  consultarRelatorioObrasFase3,
+  enviarParaProximaFase
 };

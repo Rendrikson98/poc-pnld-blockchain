@@ -48,21 +48,21 @@ const alterarEdital = async (req, res) => {
     const { event_id } = req.params; // Usando o event_id que é a chave primária
     const { old_values, new_values, ator } = req.body;
 
-    if(!old_values || !new_values || !ator) {
+    if (!old_values || !new_values || !ator) {
       return res.status(400).json({ message: 'Os campos "old_values", "new_values" e "ator" são obrigatórios.' });
     }
 
     const event = await prisma.tb_phase_call.findUnique({
       where: {
-          event_id: parseInt(event_id),
+        event_id: parseInt(event_id),
       },
     });
 
     const { master_contract_adress } = event
 
-     // 2. Enviar os metadados para o contrato mestre
+    // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
-    await fase1_receberAlteracoes(Number(event_id),  new_values.year, new_values.url_document, timestamp, master_contract_adress);
+    await fase1_receberAlteracoes(Number(event_id), new_values.year, new_values.url_document, timestamp, master_contract_adress);
 
     const eventoAtualizado = await prisma.tb_phase_call.update({
       where: {
@@ -82,7 +82,7 @@ const alterarEdital = async (req, res) => {
     res.status(200).json(eventoAtualizado);
   } catch (error) {
     console.log(error);
-    
+
     if (error.code === 'P2025') {
       return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${req.params.event_id}` });
     }
@@ -92,72 +92,72 @@ const alterarEdital = async (req, res) => {
 
 // Rota para "Enviar metadados do Edital para próxima fase"
 const enviarParaProximaFase = async (req, res) => {
-    try {
-        const { event_id } = req.params;
-        const { ator, razao_social, book_id } = req.body;
+  try {
+    const { event_id } = req.params;
+    const { ator, razao_social, book_id } = req.body;
 
-        // 1. Consultar o evento no banco de dados para obter os dados necessários
-        const event = await prisma.tb_phase_call.findUnique({
-            where: {
-                event_id: parseInt(event_id),
-            },
-        });
+    // 1. Consultar o evento no banco de dados para obter os dados necessários
+    const event = await prisma.tb_phase_call.findUnique({
+      where: {
+        event_id: parseInt(event_id),
+      },
+    });
 
-        // 2. Verificar se o evento foi encontrado
-        if (!event) {
-            return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
-        }
+    // 2. Verificar se o evento foi encontrado
+    if (!event) {
+      return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
+    }
 
-        // 3. Extrair título e ano do evento
-        console.log(JSON.stringify(event))
-        const { master_contract_adress } = event;
+    // 3. Extrair título e ano do evento
+    console.log(JSON.stringify(event))
+    const { master_contract_adress } = event;
 
-        const result = await fase1_enviarMetadadosParaFase2(master_contract_adress);
+    const result = await fase1_enviarMetadadosParaFase2(master_contract_adress);
 
-        console.log(result)
+    console.log(result)
 
-        // 4. Atualizar o status do evento para "Forward"
-        const eventoProximaFase = await prisma.tb_phase_call.update({
-          where:{
-            event_id: parseInt(event_id)
-          },
-          data: {
-            event_type: 'Forward', 
-            actor: ator,         
-          },
-        });
+    // 4. Atualizar o status do evento para "Forward"
+    await prisma.tb_phase_call.update({
+      where: {
+        event_id: parseInt(event_id)
+      },
+      data: {
+        event_type: 'Forward',
+        actor: ator,
+      },
+    });
 
-        const eventoFase2 = await prisma.tb_phase_submission.create({
-          data: {
-            publisher_id: Number(event_id),
-            publisher_name: razao_social,
-            book_id,
-            book_status: 'Submetido', // Status inicial
-            event_type: 'Registro de Obra',
-            actor: ator,
-            contract_address: result.contract2Address,
-            master_contract_adress: master_contract_adress, // Endereço do contrato mestre
-          },
-        })
+    const eventoFase2 = await prisma.tb_phase_submission.create({
+      data: {
+        publisher_id: Number(event_id),
+        publisher_name: razao_social,
+        book_id,
+        book_status: 'Submetido', // Status inicial
+        event_type: 'Registro de Obra',
+        actor: ator,
+        contract_address: result.contract2Address,
+        master_contract_adress: master_contract_adress, // Endereço do contrato mestre
+      },
+    })
 
-        if(!eventoFase2) {
-          return res.status(500).json({ message: 'Não foi possível registrar a obra na fase 2.' });
-        }
-    
-        res.status(201).json(eventoProximaFase);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Não foi possível enviar os metadados para a próxima fase.' });
-      }
+    if (!eventoFase2) {
+      return res.status(500).json({ message: 'Não foi possível registrar a obra na fase 2.' });
+    }
+
+    res.status(201).json(eventoFase2);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Não foi possível enviar os metadados para a próxima fase.' });
+  }
 };
 
 // Rota para visualizar todas as informações
 const visualizarInformacoes = async (req, res) => {
   try {
     const todosEventos = await prisma.tb_phase_call.findMany({
-        orderBy: {
-            created_at: 'desc' 
-        }
+      orderBy: {
+        created_at: 'desc'
+      }
     });
     res.status(200).json(todosEventos);
   } catch (error) {
@@ -198,7 +198,7 @@ const consultarEdital = async (req, res) => {
   }
 };
 
-const consultarEnderecoFases= async (req, res) => {
+const consultarEnderecoFases = async (req, res) => {
   try {
     const { masterContractAddress } = req.params;
 

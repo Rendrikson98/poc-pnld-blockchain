@@ -143,7 +143,7 @@ const enviarParaProximaFase = async (req, res) => {
     const result = await fase2_enviarMetadadosParaFase3(master_contract_adress);
 
 
-    const proximaFase = await prisma.tb_phase_submission.update({
+    await prisma.tb_phase_submission.update({
       where: { event_id: parseInt(event_id) },
       data: {
         book_status: 'Relatório enviado para próxima fase',
