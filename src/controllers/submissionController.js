@@ -130,18 +130,21 @@ const enviarParaProximaFase = async (req, res) => {
         event_id: parseInt(event_id),
       },
     });
-
+    console.log('aqui')
     // 2. Verificar se o evento foi encontrado
     if (!event) {
       return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
     }
+    console.log('aqui 2')
 
     // 3. Extrair título e ano do evento
     console.log(JSON.stringify(event))
     const { master_contract_adress } = event;
 
+    console.log('aqui 3')
     const result = await fase2_enviarMetadadosParaFase3(master_contract_adress);
 
+    console.log('aqui 4')
 
     await prisma.tb_phase_submission.update({
       where: { event_id: parseInt(event_id) },

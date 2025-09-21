@@ -3,7 +3,7 @@ const router = express.Router();
 const avaliacaoController = require('../controllers/avaliacaoContractController');
 
 // Rota para "receber avaliadores"
-router.put('/receber-avaliadores/:event_id', avaliacaoController.receberAvaliadores);
+router.post('/receber-avaliadores/:event_id', avaliacaoController.receberAvaliadores);
 
 // Rota para "emitir relatório de avaliação"
 router.put('/emitir-relatorio/:event_id', avaliacaoController.emitirRelatorio);

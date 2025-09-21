@@ -1,0 +1,55 @@
+# CONFIGURAÇÕES CRÍTICAS PARA RESOLVER "code size exceeds maximum"
+# Esta configuração é OBRIGATÓRIA para contratos grandes
+
+# Network
+NETWORK_ID=5777
+HOST=127.0.0.1
+PORT=7545
+
+# Gas Settings - CRÍTICO para contratos grandes
+GAS_LIMIT=15000000
+BLOCK_GAS_LIMIT=15000000
+GAS_PRICE=20000000000
+
+# Block Settings
+BLOCK_TIME=0
+
+# CRÍTICO: Configurações para resolver "code size exceeds maximum"
+ALLOW_UNLIMITED_CONTRACT_SIZE=true
+CALL_GAS_LIMIT=15000000
+
+# EIP Settings - IMPORTANTE para contratos grandes
+HARDFORK=london
+FORK_BLOCK_NUMBER=latest
+
+# Account Settings
+ACCOUNTS=10
+DEFAULT_BALANCE_ETHER=1000
+
+# Mining
+DETERMINISTIC=false
+MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+
+# Logging - Para debugging
+QUIET=false
+VERBOSE=true
+
+# Database
+DB_PATH="./ganache-db"
+
+# WebSocket
+WEBSOCKET_ENABLED=true
+
+# COMANDO PARA GANACHE CLI (COPIE E COLE):
+# ganache-cli --gasLimit 15000000 --gasPrice 20000000000 --allowUnlimitedContractSize --callGasLimit 15000000 --accounts 10 --defaultBalanceEther 1000 --hardfork london --port 7545
+
+# PARA GANACHE GUI:
+# 1. Clique em "New Workspace"
+# 2. Server tab:
+#    - Port: 7545
+#    - Gas Limit: 15000000
+#    - Gas Price: 20
+# 3. Advanced tab:
+#    - Allow unlimited contract size: ✓ (OBRIGATÓRIO)
+#    - Call gas limit: 15000000
+# 4. Save and Start

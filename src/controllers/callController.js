@@ -18,7 +18,7 @@ const receberMetadadosEdital = async (req, res) => {
 
     // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
-    await fase1_receberMetadados(id_edital, title, year, url_document, timestamp, masterContractAddress);
+    await fase1_receberMetadados(id_edital, title, year, url_document, timestamp, publicationAddress);
     console.log('Metadados enviados para o contrato da Fase 1.');
 
     // 3. Armazenar o evento no banco de dados
@@ -58,11 +58,11 @@ const alterarEdital = async (req, res) => {
       },
     });
 
-    const { master_contract_adress } = event
+    const { contract_address } = event
 
     // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
-    await fase1_receberAlteracoes(Number(event_id), new_values.year, new_values.url_document, timestamp, master_contract_adress);
+    await fase1_receberAlteracoes(Number(event_id), new_values.year, new_values.url_document, timestamp, contract_address);
 
     const eventoAtualizado = await prisma.tb_phase_call.update({
       where: {
@@ -110,9 +110,9 @@ const enviarParaProximaFase = async (req, res) => {
 
     // 3. Extrair título e ano do evento
     console.log(JSON.stringify(event))
-    const { master_contract_adress } = event;
+    const { master_contract_adress, contract_address } = event;
 
-    const result = await fase1_enviarMetadadosParaFase2(master_contract_adress);
+    const result = await fase1_enviarMetadadosParaFase2(master_contract_adress, contract_address);
 
     console.log(result)
 
@@ -168,13 +168,13 @@ const visualizarInformacoes = async (req, res) => {
 
 const consultarEdital = async (req, res) => {
   try {
-    const { masterContractAddress } = req.params;
+    const { contractAddress } = req.params;
 
-    if (!masterContractAddress) {
+    if (!contractAddress) {
       return res.status(400).json({ message: 'O endereço do contrato mestre é obrigatório.' });
     }
 
-    const edital = await fase1_consultar_edital(masterContractAddress);
+    const edital = await fase1_consultar_edital(contractAddress);
 
     const convertBigIntToString = (obj) => {
       const newObj = {};
@@ -208,7 +208,7 @@ const consultarEnderecoFases = async (req, res) => {
 
     const faseAddresses = await getFaseAddresses(masterContractAddress);
 
-    res.status(200).json(faseAddresses);
+    res.status(200).json(faseAddresses?.[0]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Não foi possível consultar os endereços das fases no contrato.' });

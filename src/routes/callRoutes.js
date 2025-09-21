@@ -14,7 +14,7 @@ router.put('/enviar-proxima-fase/:event_id', callController.enviarParaProximaFas
 // Rota para visualizar todas as informações
 router.get('/visualizar', callController.visualizarInformacoes);
 
-router.get('/informacoes-edital-contract/:masterContractAddress', callController.consultarEdital);
+router.get('/informacoes-edital-contract/:contractAddress', callController.consultarEdital);
 router.get('/contract_address/:masterContractAddress', callController.consultarEnderecoFases);
 
 module.exports = router;
