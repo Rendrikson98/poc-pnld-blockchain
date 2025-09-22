@@ -28,12 +28,12 @@ const getFaseAddresses = async (masterContractAddress) => {
     }
 };
 
-const getObras = async (masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const getObras = async (contractAddress) => {
+    const contract = new web3.eth.Contract(abiSubmissionContract, contractAddress);
 
     try {
         const response = await contract.methods
-            .consultarObra()
+            .getObra()
             .call();
 
         return response

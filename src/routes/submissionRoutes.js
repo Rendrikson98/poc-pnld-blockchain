@@ -17,6 +17,6 @@ router.put('/enviar-proxima-fase/:event_id', submissionController.enviarParaProx
 // Rota para visualizar todas as informações
 router.get('/visualizar', submissionController.visualizarInformacoes);
 
-router.get('/obra/contract_address/:masterContractAddress', submissionController.consultarObrasFases);
+router.get('/obra/contract_address/:contractAddress', submissionController.consultarObrasFases);
 
 module.exports = router;

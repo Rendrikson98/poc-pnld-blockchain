@@ -196,13 +196,13 @@ const visualizarInformacoes = async (req, res) => {
 
 const consultarObrasFases = async (req, res) => {
   try {
-    const { masterContractAddress } = req.params;
+    const { contractAddress } = req.params;
 
-    if (!masterContractAddress) {
-      return res.status(400).json({ message: 'O endereço do contrato mestre é obrigatório.' });
+    if (!contractAddress) {
+      return res.status(400).json({ message: 'O endereço do contrato é obrigatório.' });
     }
 
-    const faseAddresses = await getObras(masterContractAddress);
+    const faseAddresses = await getObras(contractAddress);
 
     const convertBigIntToString = (obj) => {
       const newObj = {};
