@@ -2,7 +2,7 @@ const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 const { fase3_receberAvaliadores,
   fase3_emitirRelatorioCriterios,
-  fase3_enviarObrasAprovadas,
+  // fase3_enviarObrasAprovadas,
   fase3_consultarRelatorioObras } = require('./smartContractController');
 
 // Importa as funções de criptografia
@@ -24,7 +24,7 @@ const receberAvaliadores = async (req, res) => {
       },
     });
 
-    const { master_contract_adress } = event;
+    const { contract_address } = event;
 
     // Gera hash dos dados dos avaliadores
     const avaliadoresData = {
@@ -38,7 +38,7 @@ const receberAvaliadores = async (req, res) => {
     const hashAvaliadores = generateHash(avaliadoresData);
     console.log('Hash gerado:', hashAvaliadores);
 
-    const result = await fase3_receberAvaliadores(event_id, id_obra, ids_equipes, ids_avaliadores, hashAvaliadores, master_contract_adress);
+    const result = await fase3_receberAvaliadores(event_id, id_obra, ids_equipes, ids_avaliadores, hashAvaliadores, contract_address);
     console.log(result);
 
     const novosAvaliadores = await prisma.tb_phase_review.update({
@@ -69,7 +69,7 @@ const emitirRelatorio = async (req, res) => {
       },
     });
 
-    const { master_contract_adress } = event;
+    const { contract_address } = event;
 
     // Gera hash dos dados do relatório
     const relatorioData = {
@@ -83,7 +83,7 @@ const emitirRelatorio = async (req, res) => {
     const hashRelatorio = generateHash(relatorioData);
     console.log('Hash do relatório:', hashRelatorio);
 
-    const result = await fase3_emitirRelatorioCriterios(doc, historico_criterios, st_criterios, hashRelatorio, master_contract_adress);
+    const result = await fase3_emitirRelatorioCriterios(doc, historico_criterios, st_criterios, hashRelatorio, contract_address);
     console.log(result);
 
     const relatorioEmitido = await prisma.tb_phase_review.update({
@@ -109,63 +109,63 @@ const emitirRelatorio = async (req, res) => {
   }
 }
 
-const enviarParaProximaFase = async (req, res) => {
-  try {
-    const { event_id } = req.params;
-    const { call_id, ator } = req.body;
+// const enviarParaProximaFase = async (req, res) => {
+//   try {
+//     const { event_id } = req.params;
+//     const { call_id, ator } = req.body;
 
-    // 1. Consultar o evento no banco de dados para obter os dados necessários
-    const event = await prisma.tb_phase_review.findUnique({
-      where: {
-        event_id: parseInt(event_id),
-      },
-    });
+//     // 1. Consultar o evento no banco de dados para obter os dados necessários
+//     const event = await prisma.tb_phase_review.findUnique({
+//       where: {
+//         event_id: parseInt(event_id),
+//       },
+//     });
 
-    // 2. Verificar se o evento foi encontrado
-    if (!event) {
-      return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
-    }
+//     // 2. Verificar se o evento foi encontrado
+//     if (!event) {
+//       return res.status(404).json({ message: `Nenhum registro encontrado com o event_id: ${event_id}` });
+//     }
 
-    // 3. Extrair título e ano do evento
-    console.log(JSON.stringify(event))
-    const { master_contract_adress } = event;
+//     // 3. Extrair título e ano do evento
+//     console.log(JSON.stringify(event))
+//     const { master_contract_adress } = event;
 
-    const result = await fase3_enviarObrasAprovadas(master_contract_adress);
+//     const result = await fase3_enviarObrasAprovadas(master_contract_adress);
 
-    console.log(result)
+//     console.log(result)
 
-    // 4. Atualizar o status do evento para "Forward"
-    await prisma.tb_phase_review.update({
-      where: {
-        event_id: parseInt(event_id)
-      },
-      data: {
-        call_id: call_id,
-        event_type: 'Forward',
-        actor: ator,
-      },
-    });
+//     // 4. Atualizar o status do evento para "Forward"
+//     await prisma.tb_phase_review.update({
+//       where: {
+//         event_id: parseInt(event_id)
+//       },
+//       data: {
+//         call_id: call_id,
+//         event_type: 'Forward',
+//         actor: ator,
+//       },
+//     });
 
-    const eventoFase3 = await prisma.tb_phase_review.create({
-      data: {
-        call_id: call_id,
-        master_contract_adress: master_contract_adress,
-        event_type: 'Início da Fase 3',
-        actor: ator,
-      },
-    });
+//     const eventoFase3 = await prisma.tb_phase_review.create({
+//       data: {
+//         call_id: call_id,
+//         master_contract_adress: master_contract_adress,
+//         event_type: 'Início da Fase 3',
+//         actor: ator,
+//       },
+//     });
 
-    res.status(200).json(eventoFase3);
+//     res.status(200).json(eventoFase3);
 
-  } catch (error) {
-    console.error(error);
-    if (error.code === 'P2025') {
-      return res.status(404).json({ message: `Não foi possível enviar para a próxima fase.` });
-    }
-    res.status(500).json({ message: 'Não foi possível enviar para a próxima fase.', error });
-  }
+//   } catch (error) {
+//     console.error(error);
+//     if (error.code === 'P2025') {
+//       return res.status(404).json({ message: `Não foi possível enviar para a próxima fase.` });
+//     }
+//     res.status(500).json({ message: 'Não foi possível enviar para a próxima fase.', error });
+//   }
 
-}
+// }
 
 //TODO: Fazar a função fase3_enviarObrasAprovadas
 
@@ -186,13 +186,13 @@ const consultarRelatorioObras = async (req, res) => {
 // Rota para visualizar todas as submissões
 const consultarRelatorioObrasFase3 = async (req, res) => {
   try {
-    const { masterContractAddress } = req.params;
+    const { contractAddress } = req.params;
 
-    if (!masterContractAddress) {
-      return res.status(400).json({ message: 'O endereço do contrato mestre é obrigatório.' });
+    if (!contractAddress) {
+      return res.status(400).json({ message: 'O endereço do contrato é obrigatório.' });
     }
 
-    const faseAddresses = await fase3_consultarRelatorioObras(masterContractAddress);
+    const faseAddresses = await fase3_consultarRelatorioObras(contractAddress);
 
     const convertBigIntToString = (obj) => {
       const newObj = {};
@@ -221,5 +221,5 @@ module.exports = {
   emitirRelatorio,
   consultarRelatorioObras,
   consultarRelatorioObrasFase3,
-  enviarParaProximaFase
+  // enviarParaProximaFase
 };

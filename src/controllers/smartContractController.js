@@ -2,6 +2,7 @@ const web3 = require('../web3.config');
 const { abi: abiMasterContract, bytecode: bytecodeMasterContract } = require('../constants/contratoMestre').masterContract;
 const { abi: abiCallContract } = require('../constants/publicacao').publicationContract;
 const { abi: abiSubmissionContract } = require('../constants/submissao').submissionContract;
+const { abi: abiAvaliationContract } = require('../constants/avaliacao').avaliacaoContract;
 const { publicKey } = require('../constants/accountsInfo').account;
 const ContractOptimization = require('../utils/contractOptimization');
 
@@ -251,12 +252,12 @@ const fase2_enviarMetadadosParaFase3 = async (masterContractAddress, submissionC
     }
 };
 
-const fase3_receberAvaliadores = async (id_edital, id_obra, ids_equipes, ids_avaliadores, hash, masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const fase3_receberAvaliadores = async (id_edital, id_obra, ids_equipes, ids_avaliadores, hash, contractAddress) => {
+    const contract = new web3.eth.Contract(abiAvaliationContract, contractAddress);
 
     try {
         const response = await contract.methods
-            .fase3_receberAvaliadores(id_edital, id_obra, ids_equipes, ids_avaliadores, hash)
+            .receberAvaliadoresPorObra(id_edital, id_obra, ids_equipes, ids_avaliadores, hash)
             .send({
                 from: publicKey,
                 gas: 5000000,
@@ -273,12 +274,12 @@ const fase3_receberAvaliadores = async (id_edital, id_obra, ids_equipes, ids_ava
     }
 };
 
-const fase3_emitirRelatorioCriterios = async (doc, historico_criterios, st_criterios, hash, masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const fase3_emitirRelatorioCriterios = async (doc, historico_criterios, st_criterios, hash, contractAddress) => {
+    const contract = new web3.eth.Contract(abiAvaliationContract, contractAddress);
 
     try {
         const response = await contract.methods
-            .fase3_receberAvaliadores(doc, historico_criterios, st_criterios, hash)
+            .emitirRelatorioObrasComCriterios(doc, historico_criterios, st_criterios, hash)
             .send({
                 from: publicKey,
                 gas: 5000000,
@@ -295,34 +296,34 @@ const fase3_emitirRelatorioCriterios = async (doc, historico_criterios, st_crite
     }
 };
 
-const fase3_enviarObrasAprovadas = async (id_obra, resenha, st_obra, masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+// const fase3_enviarObrasAprovadas = async (id_obra, resenha, st_obra, masterContractAddress) => {
+//     const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+
+//     try {
+//         const response = await contract.methods
+//             .fase3_receberAvaliadores(id_obra, resenha, st_obra)
+//             .send({
+//                 from: publicKey,
+//                 gas: 5000000,
+//                 gasPrice: '20000000000' // 20 Gwei
+//             });
+
+//         return response
+
+
+//     } catch (error) {
+//         console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
+//         console.log(error);
+//         throw error;
+//     }
+// };
+
+const fase3_consultarRelatorioObras = async (contractAddress) => {
+    const contract = new web3.eth.Contract(abiAvaliationContract, contractAddress);
 
     try {
         const response = await contract.methods
-            .fase3_receberAvaliadores(id_obra, resenha, st_obra)
-            .send({
-                from: publicKey,
-                gas: 5000000,
-                gasPrice: '20000000000' // 20 Gwei
-            });
-
-        return response
-
-
-    } catch (error) {
-        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO");
-        console.log(error);
-        throw error;
-    }
-};
-
-const fase3_consultarRelatorioObras = async (masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
-
-    try {
-        const response = await contract.methods
-            .consultarRelatorioObras()
+            .getRelatorioObras()
             .call();
 
         return response
@@ -434,7 +435,7 @@ module.exports = {
     // Fase 3
     fase3_receberAvaliadores,
     fase3_emitirRelatorioCriterios,
-    fase3_enviarObrasAprovadas,
+    // fase3_enviarObrasAprovadas,
     fase3_consultarRelatorioObras
 
 };
