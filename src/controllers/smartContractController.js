@@ -1,6 +1,7 @@
 const web3 = require('../web3.config');
 const { abi: abiMasterContract, bytecode: bytecodeMasterContract } = require('../constants/contratoMestre').masterContract;
-const { abi: abiCallContract, bytecode: bytecodeCallContract } = require('../constants/publicacao').publicationContract;
+const { abi: abiCallContract } = require('../constants/publicacao').publicationContract;
+const { abi: abiSubmissionContract } = require('../constants/submissao').submissionContract;
 const { publicKey } = require('../constants/accountsInfo').account;
 const ContractOptimization = require('../utils/contractOptimization');
 
@@ -43,15 +44,6 @@ const getObras = async (masterContractAddress) => {
         console.log(error);
         throw error;
     }
-};
-
-const definirCargo = async (_conta, _cargo) => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'definirCargo', [_conta, _cargo]);
-};
-
-
-const criarContratoFase2 = async () => {
-    return await sendTransaction.call({ masterContract, accountAddress }, 'criarContratoFase2', []);
 };
 
 const fase1_receberMetadados = async (id, title, year, url, ts, CallContractAddress) => {
@@ -169,61 +161,36 @@ const fase1_enviarMetadadosParaFase2 = async (masterContractAddress, CallContrac
     }
 };
 
-const fase2_receberInscricaoObras = async (id, cnpj, idObra, timestamp, masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const fase2_receberInscricaoObras = async (id, cnpj, idObra, timestamp, contractAddress) => {
+    const contract = new web3.eth.Contract(abiSubmissionContract, contractAddress);
 
     try {
         const response = await contract.methods
-            .fase2_receberInscricaoObras(id, cnpj, idObra, timestamp)
+            .receberInscricaoObras(id, cnpj, idObra, timestamp)
             .send(ContractOptimization.getSafeTransactionOptions(publicKey, true));
 
         return response
 
 
     } catch (error) {
-        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO - fase2_receberInscricaoObras");
-
-        if (error.message && error.message.includes('exceeds block gas limit')) {
-            console.error("❌ ERRO: Transação excede o limite de gas do bloco");
-            console.log("🔄 Tentando novamente com configurações mais conservadoras...");
-
-            const safeResponse = await contract.methods
-                .fase2_receberInscricaoObras(id, cnpj, idObra, timestamp)
-                .send(ContractOptimization.getSafeTransactionOptions(publicKey, false));
-
-            return safeResponse;
-        }
-
         console.log(error);
         throw error;
     }
 };
 
-const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url, masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const fase2_emitirRelatorioObrasValidadas = async (id_obra, titulo, url, contractAddress) => {
+        const contract = new web3.eth.Contract(abiSubmissionContract, contractAddress);
+
 
     try {
         const response = await contract.methods
-            .fase2_emitirRelatorioObrasValidadas(id_obra, titulo, url)
+            .emitirRelatorioObrasValidadas(id_obra, titulo, url)
             .send(ContractOptimization.getSafeTransactionOptions(publicKey, true));
 
         return response
 
 
     } catch (error) {
-        console.log("OCORREU UM ERRO NA ATUALIZAÇÃO - fase2_emitirRelatorioObrasValidadas");
-
-        if (error.message && error.message.includes('exceeds block gas limit')) {
-            console.error("❌ ERRO: Transação excede o limite de gas do bloco");
-            console.log("🔄 Tentando novamente com configurações mais conservadoras...");
-
-            const safeResponse = await contract.methods
-                .fase2_emitirRelatorioObrasValidadas(id_obra, titulo, url)
-                .send(ContractOptimization.getSafeTransactionOptions(publicKey, false));
-
-            return safeResponse;
-        }
-
         console.log(error);
         throw error;
     }
@@ -247,27 +214,32 @@ const fase2_consultar_obras_validadas = async (masterContractAddress) => {
     }
 }
 
-const fase2_enviarMetadadosParaFase3 = async (masterContractAddress) => {
-    const contract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+const fase2_enviarMetadadosParaFase3 = async (masterContractAddress, submissionContractAddress) => {
+    const masterContract = new web3.eth.Contract(abiMasterContract, masterContractAddress);
+    const submissionContract = new web3.eth.Contract(abiSubmissionContract, submissionContractAddress);
 
     try {
 
 
-        await contract.methods
+        await masterContract.methods
             .criarContratoFase3()
             .send(ContractOptimization.getPhaseCreationOptions(publicKey));
         console.log('aqui contrato 1')
-        const response = await contract.methods
-            .fase2_enviarObrasParaFase3()
+        const response = await masterContract.methods
+            .avancarFase2ParaFase3()
             .send(ContractOptimization.getOptimizedTransactionOptions(publicKey));
+
+        await submissionContract.methods.enviarObrasValidadasParaProximaFase().send(ContractOptimization.getOptimizedTransactionOptions(publicKey));
 
         console.log('aqui contrato 2')
         const contractAddress = await getFaseAddresses(masterContractAddress);
         console.log('aqui contrato 3')
         const contract2Address = contractAddress?.[1];
+        const contract3Address = contractAddress?.[2];
 
         return {
             contract2Address,
+            contract3Address,
             ...response
         }
 
@@ -449,8 +421,6 @@ module.exports = {
     getObras,
     getFaseAddresses,
     deployMasterContract,
-    definirCargo,
-    criarContratoFase2,
     // Fase 1
     fase1_receberMetadados,
     fase1_receberAlteracoes,

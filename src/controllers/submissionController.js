@@ -19,11 +19,11 @@ const registrarObra = async (req, res) => {
       },
     });
 
-    const { master_contract_adress } = event;
+    const { contract_address } = event;
 
     // 2. Enviar os metadados para o contrato mestre
     const timestamp = Math.floor(Date.now() / 1000);
-    const result = await fase2_receberInscricaoObras(id_editora, razao_social, id_obra, timestamp, master_contract_adress);
+    const result = await fase2_receberInscricaoObras(id_editora, razao_social, id_obra, timestamp, contract_address);
     console.log(result);
 
     const novaSubmissao = await prisma.tb_phase_submission.update({
@@ -91,10 +91,8 @@ const emitirRelatorio = async (req, res) => {
       },
     });
 
-    const { master_contract_adress } = event;
-    //TODO: Primeiro precisa receber inscrição da obra e depois emitir o relatórios, preciso criar a função de receber
-    // 2. Enviar os metadados para o contrato mestre
-    const result = await fase2_emitirRelatorioObrasValidadas(id_editora, titulo, url_documento, master_contract_adress);
+    const { contract_address } = event;
+    const result = await fase2_emitirRelatorioObrasValidadas(id_editora, titulo, url_documento, contract_address);
     console.log(result);
 
     const relatorioEmitido = await prisma.tb_phase_submission.update({
@@ -139,10 +137,10 @@ const enviarParaProximaFase = async (req, res) => {
 
     // 3. Extrair título e ano do evento
     console.log(JSON.stringify(event))
-    const { master_contract_adress } = event;
+    const { master_contract_adress, contract_address } = event;
 
     console.log('aqui 3')
-    const result = await fase2_enviarMetadadosParaFase3(master_contract_adress);
+    const result = await fase2_enviarMetadadosParaFase3(master_contract_adress, contract_address);
 
     console.log('aqui 4')
 
@@ -158,12 +156,10 @@ const enviarParaProximaFase = async (req, res) => {
 
     const eventoFase3 = await prisma.tb_phase_review.create({
       data: {
-        event_id: Number(event_id), // Referência ao event_id da submissão
         call_id: Number(id_edital),
         book_id: Number(id_book),
         book_status: 'Em Revisão', // Status inicial
-        reviewers_json: '[]', // Inicialmente vazio
-        review_reports_json: '[]', // Inicialmente vazio
+        reviewers_json: {}, // Inicialmente vazio
         contract_address: result.contract3Address,
         master_contract_adress: master_contract_adress, // Endereço do contrato mestre
       },
