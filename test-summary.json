@@ -1,0 +1,318 @@
+{
+    "root_group": {
+        "checks": {
+            "Receber edital - Status 201": {
+                "name": "Receber edital - Status 201",
+                "path": "::Receber edital - Status 201",
+                "id": "0d9074c1567e40e2b177dec6b86701d3",
+                "passes": 398,
+                "fails": 0
+            },
+            "Receber edital - Tempo resposta < 3s": {
+                "name": "Receber edital - Tempo resposta < 3s",
+                "path": "::Receber edital - Tempo resposta < 3s",
+                "id": "a81de1ce41c88508ed3bd4202ffee578",
+                "passes": 229,
+                "fails": 169
+            },
+            "Receber edital - TTFB < 1.5s": {
+                "name": "Receber edital - TTFB < 1.5s",
+                "path": "::Receber edital - TTFB < 1.5s",
+                "id": "8fa186d83257e98d170c2e6b076a6f55",
+                "passes": 119,
+                "fails": 279
+            },
+            "Receber edital - Tem corpo da resposta": {
+                "name": "Receber edital - Tem corpo da resposta",
+                "path": "::Receber edital - Tem corpo da resposta",
+                "id": "a5ff40f3a971706e2499f2e18214a3e4",
+                "passes": 398,
+                "fails": 0
+            },
+            "Atualizar edital - Status 200": {
+                "passes": 398,
+                "fails": 0,
+                "name": "Atualizar edital - Status 200",
+                "path": "::Atualizar edital - Status 200",
+                "id": "da570486d8c6fa0533dd60f303a2c51c"
+            },
+            "Atualizar edital - Tempo resposta < 3s": {
+                "name": "Atualizar edital - Tempo resposta < 3s",
+                "path": "::Atualizar edital - Tempo resposta < 3s",
+                "id": "cbd25e7138d0824ad3d2b388136e2176",
+                "passes": 393,
+                "fails": 5
+            },
+            "Enviar próxima fase edital - Status 201": {
+                "path": "::Enviar próxima fase edital - Status 201",
+                "id": "563bf79b8a76ed0fb045b8183af153be",
+                "passes": 398,
+                "fails": 0,
+                "name": "Enviar próxima fase edital - Status 201"
+            },
+            "Enviar próxima fase edital - Tempo resposta < 3s": {
+                "id": "ba339baf477e2043aafb3cd3bdbe3636",
+                "passes": 259,
+                "fails": 139,
+                "name": "Enviar próxima fase edital - Tempo resposta < 3s",
+                "path": "::Enviar próxima fase edital - Tempo resposta < 3s"
+            },
+            "Registrar obra - Status 201": {
+                "id": "991362f60760d74808d6064141c267f1",
+                "passes": 398,
+                "fails": 0,
+                "name": "Registrar obra - Status 201",
+                "path": "::Registrar obra - Status 201"
+            },
+            "Registrar obra - Tempo resposta < 3s": {
+                "name": "Registrar obra - Tempo resposta < 3s",
+                "path": "::Registrar obra - Tempo resposta < 3s",
+                "id": "c4de312a609de66a15d9719f18801a4d",
+                "passes": 392,
+                "fails": 6
+            },
+            "Emitir relatório submissão - Status 200": {
+                "name": "Emitir relatório submissão - Status 200",
+                "path": "::Emitir relatório submissão - Status 200",
+                "id": "6fb4c5ef86b1be208a98df51815d39ab",
+                "passes": 398,
+                "fails": 0
+            },
+            "Emitir relatório submissão - Tempo resposta < 3s": {
+                "passes": 386,
+                "fails": 12,
+                "name": "Emitir relatório submissão - Tempo resposta < 3s",
+                "path": "::Emitir relatório submissão - Tempo resposta < 3s",
+                "id": "2bd6c5c98b298dea9ce5ff394977c3ed"
+            },
+            "Enviar próxima fase submissão - Status 200": {
+                "fails": 0,
+                "name": "Enviar próxima fase submissão - Status 200",
+                "path": "::Enviar próxima fase submissão - Status 200",
+                "id": "f8d59c4e32c6166dacada28591481746",
+                "passes": 398
+            },
+            "Enviar próxima fase submissão - Tempo resposta < 3s": {
+                "passes": 255,
+                "fails": 143,
+                "name": "Enviar próxima fase submissão - Tempo resposta < 3s",
+                "path": "::Enviar próxima fase submissão - Tempo resposta < 3s",
+                "id": "a8363c8560a2bf96def8434173095f73"
+            },
+            "Receber avaliadores - Status 201": {
+                "passes": 398,
+                "fails": 0,
+                "name": "Receber avaliadores - Status 201",
+                "path": "::Receber avaliadores - Status 201",
+                "id": "beb26b3792302a0e31eb6bfeae430151"
+            },
+            "Receber avaliadores - Tempo resposta < 3s": {
+                "id": "092ba6cc8a305a00c93531609ba21e56",
+                "passes": 393,
+                "fails": 5,
+                "name": "Receber avaliadores - Tempo resposta < 3s",
+                "path": "::Receber avaliadores - Tempo resposta < 3s"
+            },
+            "Emitir relatório avaliação - Status 200": {
+                "path": "::Emitir relatório avaliação - Status 200",
+                "id": "8ce72eeaa4f1202caa129856f8959799",
+                "passes": 398,
+                "fails": 0,
+                "name": "Emitir relatório avaliação - Status 200"
+            },
+            "Emitir relatório avaliação - Tempo resposta < 3s": {
+                "name": "Emitir relatório avaliação - Tempo resposta < 3s",
+                "path": "::Emitir relatório avaliação - Tempo resposta < 3s",
+                "id": "4bb27601c0f102004e7dbdf9add2921f",
+                "passes": 392,
+                "fails": 6
+            }
+        },
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {}
+    },
+    "metrics": {
+        "http_req_waiting": {
+            "med": 913.6604045,
+            "max": 11124.552859,
+            "p(90)": 6158.988406200011,
+            "p(95)": 7989.318916899997,
+            "avg": 1948.8205526042732,
+            "min": 44.877851,
+            "thresholds": {
+                "p(95)<10000": false
+            }
+        },
+        "iteration_duration": {
+            "p(90)": 44375.1038702,
+            "p(95)": 45480.8215749,
+            "avg": 23495.02489893925,
+            "min": 9008.371185,
+            "med": 18764.954444,
+            "max": 47986.980472
+        },
+        "http_req_duration": {
+            "p(90)": 6159.186401700011,
+            "p(95)": 7989.4917171499965,
+            "avg": 1949.0333270191563,
+            "min": 45.039157,
+            "med": 913.8968669999999,
+            "max": 11124.790061,
+            "thresholds": {
+                "p(95)<10000": false
+            }
+        },
+        "network_latency_ttfb": {
+            "p(95)": 7989.318916899997,
+            "avg": 1948.8205526042732,
+            "min": 44.877851,
+            "med": 913.6604045,
+            "max": 11124.552859,
+            "p(90)": 6158.988406200011,
+            "thresholds": {
+                "p(95)<10000": false
+            }
+        },
+        "error_rate": {
+            "passes": 0,
+            "fails": 3184,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "data_sent": {
+            "count": 997060,
+            "rate": 2289.977780758155
+        },
+        "service_time_ms": {
+            "avg": 1949.0333270191563,
+            "min": 45.039157,
+            "med": 913.8968669999999,
+            "max": 11124.790061,
+            "p(90)": 6159.186401700011,
+            "p(95)": 7989.4917171499965,
+            "thresholds": {
+                "p(95)<10000": false
+            }
+        },
+        "http_req_connecting": {
+            "avg": 0.015814540829145733,
+            "min": 0,
+            "med": 0,
+            "max": 1.616957,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "data_received": {
+            "count": 2429908,
+            "rate": 5580.8430077292105
+        },
+        "http_req_duration{expected_response:true}": {
+            "min": 45.039157,
+            "med": 913.8968669999999,
+            "max": 11124.790061,
+            "p(90)": 6159.186401700011,
+            "p(95)": 7989.4917171499965,
+            "avg": 1949.0333270191563
+        },
+        "http_req_receiving": {
+            "p(90)": 0.21435690000000002,
+            "p(95)": 0.23859039999999992,
+            "avg": 0.15523692305276363,
+            "min": 0.052792,
+            "med": 0.1493355,
+            "max": 1.078555
+        },
+        "vus_max": {
+            "value": 50,
+            "min": 50,
+            "max": 50
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 3184,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "http_reqs": {
+            "count": 3184,
+            "rate": 7.312788853162262
+        },
+        "http_req_tls_handshaking": {
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0
+        },
+        "checks": {
+            "passes": 6400,
+            "fails": 764,
+            "value": 0.8933556672250139
+        },
+        "vus": {
+            "min": 1,
+            "max": 50,
+            "value": 1
+        },
+        "throughput_requests_per_second": {
+            "rate": 0.9140986066452828,
+            "count": 398
+        },
+        "response_validation_rate": {
+            "fails": 0,
+            "passes": 3184,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "data_accuracy_rate": {
+            "fails": 0,
+            "passes": 3184,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "http_req_sending": {
+            "avg": 0.05753749183417087,
+            "min": 0.013919,
+            "med": 0.046085,
+            "max": 1.967139,
+            "p(90)": 0.08392220000000004,
+            "p(95)": 0.1041506
+        },
+        "bandwidth_utilization_bytes": {
+            "value": 1558,
+            "min": 820,
+            "max": 1560
+        },
+        "iterations": {
+            "count": 395,
+            "rate": 0.9072084161429314
+        },
+        "data_sent_bytes": {
+            "count": 1660972,
+            "rate": 3814.804499690524
+        },
+        "data_received_bytes": {
+            "count": 1660972,
+            "rate": 3814.804499690524
+        },
+        "http_req_blocked": {
+            "avg": 0.029425367776381977,
+            "min": 0.004535,
+            "med": 0.0094895,
+            "max": 2.873974,
+            "p(90)": 0.013141,
+            "p(95)": 0.019447399999999986
+        }
+    }
+}
