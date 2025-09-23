@@ -1,0 +1,55 @@
+{
+  "description": "Configuração de teste de performance K6 para API",
+  "test_scenarios": {
+    "smoke_test": {
+      "duration": "1m",
+      "target": 5,
+      "description": "Teste básico com 5 usuários por 1 minuto"
+    },
+    "load_test": {
+      "duration": "5m",
+      "target": 20,
+      "description": "Teste de carga com 20 usuários por 5 minutos"
+    },
+    "stress_test": {
+      "duration": "10m",
+      "target": 50,
+      "description": "Teste de estresse com 50 usuários por 10 minutos"
+    },
+    "spike_test": {
+      "stages": [
+        {
+          "duration": "1m",
+          "target": 10
+        },
+        {
+          "duration": "30s",
+          "target": 100
+        },
+        {
+          "duration": "1m",
+          "target": 10
+        }
+      ],
+      "description": "Teste de picos com aumento súbito de carga"
+    }
+  },
+  "thresholds": {
+    "error_rate": "rate<0.1",
+    "response_time_p95": "p(95)<2000",
+    "ttfb_p95": "p(95)<1000",
+    "data_accuracy": "rate>0.95",
+    "response_validation": "rate>0.95"
+  },
+  "metrics_tracked": [
+    "Taxa de Erro (http_req_failed)",
+    "Precisão dos Dados (data_accuracy_rate)",
+    "Disponibilidade (inferida da taxa de falhas)",
+    "Latência de Rede TTFB (http_req_waiting)",
+    "Utilização de Banda (data_sent, data_received)",
+    "Taxa de Transferência (http_reqs)",
+    "Tempo de Resposta (http_req_duration)",
+    "Tempo de Serviço (http_req_duration)",
+    "Escalabilidade/Concorrência (vus, vus_max)"
+  ]
+}
